@@ -3,6 +3,9 @@ package com.example.demo.article.controller;
 import com.example.demo.article.dto.ArticleDTO;
 import com.example.demo.article.entity.Article;
 import com.example.demo.article.service.ArticleService;
+import com.example.demo.global.rsData.RsData;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +18,14 @@ import java.util.List;
 public class ApiV1ArticleController {
     private final ArticleService articleService;
 
+    @AllArgsConstructor
+    @Getter
+    public static class ArticlesResponse {
+        private final List<ArticleDTO> articleList;
+    }
+
     @GetMapping("")
-    public List<ArticleDTO> list() {
+    public RsData<ArticlesResponse> list() {
         List<ArticleDTO> articleList = new ArrayList<>();
 
         Article article1 = new Article("제목 1", "내용 1");
@@ -28,16 +37,22 @@ public class ApiV1ArticleController {
         Article article3 = new Article("제목 3", "내용 3");
         articleList.add(new ArticleDTO(article3));
 
-        return articleList;
+        return RsData.of("200", "게시글 다건 조회 성공", new ArticlesResponse(articleList));
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class ArticleResponse {
+        private  final ArticleDTO article;
     }
 
     @GetMapping("/{id}")
-    public ArticleDTO getArticle() {
+    public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
         Article article = new Article("제목 1", "내용 1");
 
         ArticleDTO articleDTO = new ArticleDTO(article);
 
-        return articleDTO;
+        return RsData.of("200", "게시글 단건 조회 성공", new ArticleResponse(articleDTO));
     }
 
     @PostMapping("")

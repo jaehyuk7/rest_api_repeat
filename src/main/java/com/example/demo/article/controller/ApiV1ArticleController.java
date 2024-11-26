@@ -1,18 +1,16 @@
 package com.example.demo.article.controller;
 
 import com.example.demo.article.dto.ArticleDTO;
-import com.example.demo.article.entity.Article;
+import com.example.demo.article.requeset.ArticleCreateRequest;
+import com.example.demo.article.requeset.ArticleModifyRequest;
+import com.example.demo.article.response.ArticleResponse;
+import com.example.demo.article.response.ArticlesResponse;
 import com.example.demo.article.service.ArticleService;
 import com.example.demo.global.rsData.RsData;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,70 +19,33 @@ import java.util.List;
 public class ApiV1ArticleController {
     private final ArticleService articleService;
 
-    @AllArgsConstructor
-    @Getter
-    public static class ArticlesResponse {
-        private final List<ArticleDTO> articleList;
-    }
-
     @GetMapping("")
     public RsData<ArticlesResponse> list() {
-        List<ArticleDTO> articleList = new ArrayList<>();
-
-        Article article1 = new Article("제목 1", "내용 1");
-        articleList.add(new ArticleDTO(article1));
-
-        Article article2 = new Article("제목 2", "내용 2");
-        articleList.add(new ArticleDTO(article2));
-
-        Article article3 = new Article("제목 3", "내용 3");
-        articleList.add(new ArticleDTO(article3));
+        List<ArticleDTO> articleList = this.articleService.getList();
 
         return RsData.of("200", "게시글 다건 조회 성공", new ArticlesResponse(articleList));
     }
 
-    @Getter
-    @AllArgsConstructor
-    public static class ArticleResponse {
-        private  final ArticleDTO article;
-    }
-
     @GetMapping("/{id}")
-        public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
-        Article article = new Article("제목 1", "내용 1");
-
-        ArticleDTO articleDTO = new ArticleDTO(article);
+    public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
+        ArticleDTO  articleDTO = this.articleService.getArticle(id);
 
         return RsData.of("200", "게시글 단건 조회 성공", new ArticleResponse(articleDTO));
     }
 
-    @Data
-    public static class ArticleRequest {
-        @NotBlank
-        private String subject;
-        @NotBlank
-        private String content;
-    }
-
     @PostMapping("")
-    public String create(@Valid @RequestBody ArticleRequest articleRequest) {
-        System.out.println(articleRequest.getSubject());
-        System.out.println(articleRequest.getContent());
-
+    public String create(@Valid @RequestBody ArticleCreateRequest articleCreateRequest) {
         return "생성";
     }
 
     @PatchMapping("/{id}")
-    public String modify(@PathVariable("id") Long id, @Valid @RequestBody ArticleRequest articleRequest) {
-        System.out.println(id);
-        System.out.println(articleRequest.getSubject());
-        System.out.println(articleRequest.getContent());
+    public String modify(@PathVariable("id") Long id,
+                         @Valid @RequestBody ArticleModifyRequest articleModifyRequest) {
         return "수정";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") Long id) {
-        System.out.println(id);
         return "삭제";
     }
 }

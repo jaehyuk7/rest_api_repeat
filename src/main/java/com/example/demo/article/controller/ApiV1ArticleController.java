@@ -4,7 +4,10 @@ import com.example.demo.article.dto.ArticleDTO;
 import com.example.demo.article.entity.Article;
 import com.example.demo.article.service.ArticleService;
 import com.example.demo.global.rsData.RsData;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +50,7 @@ public class ApiV1ArticleController {
     }
 
     @GetMapping("/{id}")
-    public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
+        public RsData<ArticleResponse> getArticle(@PathVariable("id") Long id) {
         Article article = new Article("제목 1", "내용 1");
 
         ArticleDTO articleDTO = new ArticleDTO(article);
@@ -55,21 +58,27 @@ public class ApiV1ArticleController {
         return RsData.of("200", "게시글 단건 조회 성공", new ArticleResponse(articleDTO));
     }
 
+    @Data
+    public static class ArticleRequest {
+        @NotBlank
+        private String subject;
+        @NotBlank
+        private String content;
+    }
+
     @PostMapping("")
-    public String create(@RequestParam("subject") String subject,
-                         @RequestParam("content") String content) {
-        System.out.println(subject);
-        System.out.println(content);
+    public String create(@Valid @RequestBody ArticleRequest articleRequest) {
+        System.out.println(articleRequest.getSubject());
+        System.out.println(articleRequest.getContent());
 
         return "생성";
     }
 
     @PatchMapping("/{id}")
-    public String modify(@PathVariable("id") Long id, @RequestParam("subject") String subject,
-                         @RequestParam("content") String content) {
+    public String modify(@PathVariable("id") Long id, @Valid @RequestBody ArticleRequest articleRequest) {
         System.out.println(id);
-        System.out.println(subject);
-        System.out.println(content);
+        System.out.println(articleRequest.getSubject());
+        System.out.println(articleRequest.getContent());
         return "수정";
     }
 
